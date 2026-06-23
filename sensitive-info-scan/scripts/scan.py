@@ -181,6 +181,10 @@ ASSIGN_UNQUOTED_RE = re.compile(
     r"([A-Za-z0-9._\-+/%]{12,})"
 )
 
+# A dotted code reference (Environment.GetEnvironmentVariable, os.environ, _options.Foo)
+# — used to skip env-var reads that aren't actually leaked credentials.
+CODE_REF_RE = re.compile(r"^[A-Za-z_]\w*(?:\.[A-Za-z_]\w*)+$")
+
 
 class Finding:
     __slots__ = ("severity", "kind", "relpath", "lineno", "redacted")
@@ -223,6 +227,12 @@ def _scan_segment(line: str, relpath: str, lineno: int, out: list):
 
     for m in ASSIGN_UNQUOTED_RE.finditer(line):
         key, value = m.group(1), m.group(2)
+        # Skip code, not credentials: a function call (value followed by "(") or a
+        # dotted identifier such as Environment.GetEnvironmentVariable / os.environ —
+        # i.e. the *secure* pattern of reading a key from the environment.
+        nxt = line[m.end(2)] if m.end(2) < len(line) else ""
+        if nxt == "(" or (CODE_REF_RE.match(value) and not any(c.isdigit() for c in value)):
+            continue
         if looks_like_placeholder(value) or shannon(value) < 3.0:
             continue
         out.append(Finding("HIGH", f"Token/credential ({key})", relpath, lineno, redact(value)))
