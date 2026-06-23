@@ -3,7 +3,7 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "check for sensitive info in C:/AI/.claude/skills/sensitive-info-scan-workspace/fixtures/messy-project",
+      "prompt": "check for sensitive info in evals/fixtures/messy-project",
       "expected_output": "Flags the live-looking secrets, the .env, the customer PII (names, emails, mobiles, NI/NHS numbers, cards), and GDPR health data; skips node_modules; ignores placeholders; gives rotate/gitignore advice.",
       "files": [],
       "expectations": [
@@ -26,7 +26,7 @@
     },
     {
       "id": 2,
-      "prompt": "I'm about to push C:/AI/.claude/skills/sensitive-info-scan-workspace/fixtures/clean-project to a public GitHub repo. Anything personal or any secrets in here I should worry about before I do?",
+      "prompt": "I'm about to push evals/fixtures/clean-project to a public GitHub repo. Anything personal or any secrets in here I should worry about before I do?",
       "expected_output": "Reports the project as essentially safe to push, without crying wolf over the env-var key, the placeholder, or the example.com email.",
       "files": [],
       "expectations": [
@@ -39,7 +39,7 @@
     },
     {
       "id": 3,
-      "prompt": "can you look through C:/AI/.claude/skills/sensitive-info-scan-workspace/fixtures/prose-pii and tell me if there's anything sensitive or personal in there?",
+      "prompt": "can you look through evals/fixtures/prose-pii and tell me if there's anything sensitive or personal in there?",
       "expected_output": "Catches the free-text PII the regexes can't: names tied to DOBs and addresses, plus GDPR special-category health and religious data; treats it as high-sensitivity.",
       "files": [],
       "expectations": [
