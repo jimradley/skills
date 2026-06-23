@@ -1,0 +1,55 @@
+{
+  "skill_name": "sensitive-info-scan",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "check for sensitive info in C:/AI/.claude/skills/sensitive-info-scan-workspace/fixtures/messy-project",
+      "expected_output": "Flags the live-looking secrets, the .env, the customer PII (names, emails, mobiles, NI/NHS numbers, cards), and GDPR health data; skips node_modules; ignores placeholders; gives rotate/gitignore advice.",
+      "files": [],
+      "expectations": [
+        "Flags the OpenAI API key as a secret",
+        "Flags the Stripe live key as a secret",
+        "Identifies the AWS access key id",
+        "Flags the Google API key",
+        "Flags the RSA private key block",
+        "Flags the database credentials embedded in the connection string",
+        "Flags all three UK National Insurance numbers",
+        "Flags the NHS number in notes.md",
+        "Flags the payment card numbers",
+        "Flags customer emails and UK mobile numbers as PII",
+        "Flags the mental-health note as GDPR special-category data",
+        "Catches the free-text 'diabetes medication' health note in customers.csv",
+        "Does not treat the node_modules example key as a real finding",
+        "Does not report 'changeme' / 'your-sentry-dsn-here' as real secrets",
+        "Recommends rotating exposed secrets and removing/gitignoring .env + customer data"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I'm about to push C:/AI/.claude/skills/sensitive-info-scan-workspace/fixtures/clean-project to a public GitHub repo. Anything personal or any secrets in here I should worry about before I do?",
+      "expected_output": "Reports the project as essentially safe to push, without crying wolf over the env-var key, the placeholder, or the example.com email.",
+      "files": [],
+      "expectations": [
+        "Concludes the folder is safe to push (no real secrets or PII)",
+        "Does not flag the env-var key read (os.environ) as a leaked secret",
+        "Does not flag the <your-api-key-here> placeholder as a real secret",
+        "Treats noreply@example.com as a non-issue, not a real concern",
+        "Produces no false CRITICAL/HIGH findings"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "can you look through C:/AI/.claude/skills/sensitive-info-scan-workspace/fixtures/prose-pii and tell me if there's anything sensitive or personal in there?",
+      "expected_output": "Catches the free-text PII the regexes can't: names tied to DOBs and addresses, plus GDPR special-category health and religious data; treats it as high-sensitivity.",
+      "files": [],
+      "expectations": [
+        "Identifies all three individuals' full names",
+        "Identifies dates of birth",
+        "Identifies home / postal addresses",
+        "Flags health special-category data (cancer/chemotherapy and depression)",
+        "Flags religious belief as special-category data",
+        "Characterises it as high-sensitivity / GDPR special-category data needing careful handling"
+      ]
+    }
+  ]
+}
